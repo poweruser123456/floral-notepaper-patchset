@@ -1,0 +1,83 @@
+name: build-patched
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# 新推送自动取消还在跑的旧构建,节省 Actions 额度
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UPSTREAM_REPO: https://github.com/Achilng/floral-notepaper.git
+  # 锁定补丁基线提交;要跟进上游新版本时改这里,并按 README 重新生成补丁
+  UPSTREAM_REF: 69a43ae
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      # 1. 拉本补丁集仓库(只有补丁和配方,几十 KB)
+      - uses: actions/checkout@v5
+
+      # 2. 拉上游源码并锁定到基线提交
+      - name: Clone upstream at pinned ref
+        shell: bash
+        run: |
+          git clone --filter=blob:none "$UPSTREAM_REPO" upstream
+          cd upstream
+          git checkout "$UPSTREAM_REF"
+
+      # 3. 打上剪贴板自动存档补丁
+      - name: Apply patchset
+        shell: bash
+        working-directory: upstream
+        run: |
+          git apply --stat ../patches/*.patch
+          git apply --check ../patches/*.patch
+          git apply ../patches/*.patch
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      # 缓存依赖编译结果:首次全量编译较慢,之后每次构建只需重编改动部分
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "upstream/src-tauri -> target"
+
+      - name: Install dependencies
+        working-directory: upstream
+        run: npm ci
+
+      # 构建步骤与上游官方 CI 完全同款(MSVC 工具链,与官方发布口径一致)
+      - name: Build
+        working-directory: upstream
+        env:
+          # fetch-contributors.mjs 调 GitHub API,带 token 防共享 IP 限流
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npm run tauri build
+
+      # 4. 收集产物:便携版 exe + NSIS 安装包
+      - name: Collect artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path release-assets -Force | Out-Null
+          Copy-Item upstream/src-tauri/target/release/floral-notepaper.exe release-assets/floral-notepaper-portable.exe
+          $setup = Get-ChildItem -Path upstream/src-tauri/target/release/bundle/nsis -Filter *.exe |
+            Sort-Object Length -Descending | Select-Object -First 1
+          if (-not $setup) { throw 'No NSIS installer found.' }
+          Copy-Item $setup.FullName release-assets/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: floral-notepaper-patched-windows
+          path: release-assets/*
+          if-no-files-found: error
+          retention-days: 14

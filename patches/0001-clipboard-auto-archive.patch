@@ -1,0 +1,843 @@
+diff --git a/src-tauri/Cargo.lock b/src-tauri/Cargo.lock
+index 0cc3df4..583eb74 100644
+--- a/src-tauri/Cargo.lock
++++ b/src-tauri/Cargo.lock
+@@ -599,6 +599,21 @@ version = "1.1.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
+ 
++[[package]]
++name = "clipboard-rs"
++version = "0.2.4"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "afede46921767868c5c7f8f55202bdd8bec0bab6bc9605174200f45924f93c62"
++dependencies = [
++ "clipboard-win",
++ "image",
++ "objc2",
++ "objc2-app-kit",
++ "objc2-foundation",
++ "windows 0.59.0",
++ "x11rb",
++]
++
+ [[package]]
+ name = "clipboard-win"
+ version = "5.4.1"
+@@ -606,6 +621,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "bde03770d3df201d4fb868f2c9c59e66a3e4e2bd06692a0fe701e7103c7e84d4"
+ dependencies = [
+  "error-code",
++ "windows-win",
+ ]
+ 
+ [[package]]
+@@ -1241,6 +1257,7 @@ dependencies = [
+  "tauri-plugin-autostart",
+  "tauri-plugin-cli",
+  "tauri-plugin-clipboard-manager",
++ "tauri-plugin-clipboard-x",
+  "tauri-plugin-dialog",
+  "tauri-plugin-global-shortcut",
+  "tauri-plugin-opener",
+@@ -1307,6 +1324,12 @@ dependencies = [
+  "percent-encoding",
+ ]
+ 
++[[package]]
++name = "fs_extra"
++version = "1.3.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "42703706b716c37f96a77aea830392ad231f44c9e9a67872fa5548707e11b11c"
++
+ [[package]]
+ name = "futures-channel"
+ version = "0.3.34"
+@@ -2042,6 +2065,8 @@ dependencies = [
+  "num-traits",
+  "png 0.18.1",
+  "tiff",
++ "zune-core",
++ "zune-jpeg",
+ ]
+ 
+ [[package]]
+@@ -4275,6 +4300,20 @@ dependencies = [
+  "thiserror 2.0.20",
+ ]
+ 
++[[package]]
++name = "tauri-plugin-clipboard-x"
++version = "2.0.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "1ce5be18e82755a4702e93bbd1acd1ea9221b6d8cdf93b6264399a3e6bbdcfb7"
++dependencies = [
++ "clipboard-rs",
++ "fs_extra",
++ "serde",
++ "tauri",
++ "tauri-plugin",
++ "thiserror 2.0.20",
++]
++
+ [[package]]
+ name = "tauri-plugin-dialog"
+ version = "2.7.2"
+@@ -5415,6 +5454,16 @@ dependencies = [
+  "windows-targets 0.52.6",
+ ]
+ 
++[[package]]
++name = "windows"
++version = "0.59.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "7f919aee0a93304be7f62e8e5027811bbba96bcb1de84d6618be56e43f8a32a1"
++dependencies = [
++ "windows-core 0.59.0",
++ "windows-targets 0.53.5",
++]
++
+ [[package]]
+ name = "windows"
+ version = "0.61.3"
+@@ -5449,6 +5498,19 @@ dependencies = [
+  "windows-targets 0.52.6",
+ ]
+ 
++[[package]]
++name = "windows-core"
++version = "0.59.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "810ce18ed2112484b0d4e15d022e5f598113e220c53e373fb31e67e21670c1ce"
++dependencies = [
++ "windows-implement 0.59.0",
++ "windows-interface 0.59.3",
++ "windows-result 0.3.4",
++ "windows-strings 0.3.1",
++ "windows-targets 0.53.5",
++]
++
+ [[package]]
+ name = "windows-core"
+ version = "0.61.2"
+@@ -5497,6 +5559,17 @@ dependencies = [
+  "syn 2.0.119",
+ ]
+ 
++[[package]]
++name = "windows-implement"
++version = "0.59.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "83577b051e2f49a058c308f17f273b570a6a758386fc291b5f6a934dd84e48c1"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "syn 2.0.119",
++]
++
+ [[package]]
+ name = "windows-implement"
+ version = "0.60.2"
+@@ -5579,6 +5652,15 @@ dependencies = [
+  "windows-link 0.2.1",
+ ]
+ 
++[[package]]
++name = "windows-strings"
++version = "0.3.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "87fa48cc5d406560701792be122a10132491cff9d0aeb23583cc2dcafc847319"
++dependencies = [
++ "windows-link 0.1.3",
++]
++
+ [[package]]
+ name = "windows-strings"
+ version = "0.4.2"
+@@ -5708,6 +5790,15 @@ dependencies = [
+  "windows-link 0.2.1",
+ ]
+ 
++[[package]]
++name = "windows-win"
++version = "3.0.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "58e23e33622b3b52f948049acbec9bcc34bf6e26d74176b88941f213c75cf2dc"
++dependencies = [
++ "error-code",
++]
++
+ [[package]]
+ name = "windows_aarch64_gnullvm"
+ version = "0.42.2"
+diff --git a/src-tauri/Cargo.toml b/src-tauri/Cargo.toml
+index 87048ca..f2d1a2f 100644
+--- a/src-tauri/Cargo.toml
++++ b/src-tauri/Cargo.toml
+@@ -32,6 +32,9 @@ serde_json = "1"
+ chrono = { version = "0.4", features = ["serde"] }
+ uuid = { version = "1", features = ["v4", "serde"] }
+ tauri-plugin-clipboard-manager = "2"
++# 剪贴板变更监听（原生事件驱动，用于「自动存档剪贴板内容」）。
++# 与 tauri-plugin-clipboard-manager 并存：前者负责监听，后者负责窗口内的读写。
++tauri-plugin-clipboard-x = "2"
+ tokio = { version = "1", features = ["time"] }
+ trash = "5"
+ keyring = { version = "3", features = ["apple-native", "windows-native", "linux-native"] }
+diff --git a/src-tauri/capabilities/default.json b/src-tauri/capabilities/default.json
+index ab9c27e..ef831e0 100644
+--- a/src-tauri/capabilities/default.json
++++ b/src-tauri/capabilities/default.json
+@@ -28,6 +28,7 @@
+       "allow": [{ "url": "ms-windows-store://*" }]
+     },
+     "clipboard-manager:allow-write-text",
+-    "clipboard-manager:allow-read-text"
++    "clipboard-manager:allow-read-text",
++    "clipboard-x:default"
+   ]
+ }
+diff --git a/src-tauri/src/clipboard_watch.rs b/src-tauri/src/clipboard_watch.rs
+new file mode 100644
+index 0000000..6dc57bd
+--- /dev/null
++++ b/src-tauri/src/clipboard_watch.rs
+@@ -0,0 +1,389 @@
++//! 剪贴板自动存档。
++//!
++//! 监听系统剪贴板变更，把新复制的文本按日期分片追加到「剪贴板归档」笔记里。
++//!
++//! ## 为什么监听放在 Rust 侧
++//!
++//! `tauri-plugin-clipboard-x` 的变更事件只携带空 payload，收到信号的一方需要
++//! 自己再去读剪贴板内容。而 Tauri 的事件是广播到所有窗口的——如果主窗口、小窗、
++//! 磁贴各自监听，就会产生三次读取和三次写库，把同一次复制写成三条笔记。
++//!
++//! 因此监听、读取、落库三件事全部收敛在 Rust 侧的单例里；前端只负责通过配置
++//! 开关告知启停。这样无论开多少窗口都只有一个监听器，也不依赖任何窗口存活。
++//!
++//! ## 数据流
++//!
++//! ```text
++//! clipboard-x 事件 → 读文本 → 去重/过滤 → NoteStore 写库 → emit("notes-changed")
++//! ```
++//!
++//! 落库复用 `NoteStore` 既有的读写路径，并广播花笺原有的 `notes-changed` 事件，
++//! 因此主窗口、小窗、磁贴会像其他任何笔记改动一样自动刷新。
++
++use crate::services::notes::{default_store, AppConfig, AppError, NoteMetadata, NoteStore, SaveNoteRequest};
++use chrono::Local;
++use std::sync::{
++    atomic::{AtomicBool, Ordering},
++    Mutex,
++};
++use tauri::{AppHandle, Emitter, Listener, Manager};
++use tauri_plugin_clipboard_x as clipboard_x;
++
++/// clipboard-x 在剪贴板变更时广播的事件名。插件侧是字符串字面量，这里集中一处
++/// 便于升级时核对（见插件 `on_clipboard_change` 的 emit 调用）。
++const CLIPBOARD_CHANGED_EVENT: &str = "plugin:clipboard-x://clipboard_changed";
++
++/// 归档笔记标题前缀。按日期分片：`剪贴板归档-2026-09-14`。
++const ARCHIVE_TITLE_PREFIX: &str = "剪贴板归档";
++
++/// 表示「剪贴板里没有可归档的文本」的哨兵值，与真正的错误区分开。
++enum ReadOutcome {
++    /// 读到了非空文本。
++    Text(String),
++    /// 剪贴板为空，或内容是图片/文件等非文本类型——都不算错误。
++    Skipped,
++}
++
++/// 剪贴板监听的全局状态。
++#[derive(Default)]
++pub struct ClipboardWatchState {
++    /// 上一次已归档的内容，用于去重（值未变不重复写入）。
++    last_value: Mutex<Option<String>>,
++    /// 监听是否处于运行态。用于幂等保护：重复开启不会注册多个监听器。
++    running: AtomicBool,
++}
++
++impl ClipboardWatchState {
++    fn remember(&self, value: String) {
++        if let Ok(mut last) = self.last_value.lock() {
++            *last = Some(value);
++        }
++    }
++
++    fn is_duplicate(&self, value: &str) -> bool {
++        self.last_value
++            .lock()
++            .map(|last| last.as_deref() == Some(value))
++            .unwrap_or(false)
++    }
++
++    fn clear(&self) {
++        if let Ok(mut last) = self.last_value.lock() {
++            *last = None;
++        }
++    }
++
++    fn is_running(&self) -> bool {
++        self.running.load(Ordering::SeqCst)
++    }
++}
++
++/// 在应用启动时调用：注册事件处理，并按当前配置决定是否立即开启监听。
++///
++/// 即使当前配置是关闭的也要注册事件监听——用户在设置里开启后无需重启即可生效
++/// （事件回调自身会再校验一次开关状态）。
++pub fn setup_clipboard_watch(app: AppHandle) {
++    app.manage(ClipboardWatchState::default());
++
++    let listener_app = app.clone();
++    // 返回值只在需要主动注销时才有用，这里用 `let _` 显式丢弃，
++    // 既表明「不打算注销」的意图，也不会因 `#[must_use]` 触发告警。
++    let _ = app.listen(CLIPBOARD_CHANGED_EVENT, move |_event| {
++        // 事件回调是同步上下文，不能阻塞。读取与落库放到独立线程完成。
++        let app = listener_app.clone();
++        std::thread::spawn(move || {
++            if let Err(error) = archive_current_clipboard(&app) {
++                eprintln!("clipboard watch: failed to archive clipboard content: {error}");
++            }
++        });
++    });
++
++    if config_enabled() {
++        if let Err(error) = start(&app) {
++            eprintln!("clipboard watch: failed to start on startup: {error}");
++        }
++    }
++}
++
++/// 开始监听。幂等：重复调用不会注册第二个监听器。
++pub fn start(app: &AppHandle) -> Result<(), AppError> {
++    // 先把状态读出来，避免 State 借用与下面对 app 的使用交织。
++    let already_running = {
++        let state = app.state::<ClipboardWatchState>();
++        state.running.swap(true, Ordering::SeqCst)
++    };
++    if already_running {
++        return Ok(());
++    }
++
++    // clipboard-x 的 start_listening 自身也是幂等的，这里额外用 running 标志
++    // 做一层保护，避免启停快速切换时重复注册。
++    match run_async(clipboard_x::start_listening(app.clone())) {
++        Ok(()) => Ok(()),
++        Err(error) => {
++            app.state::<ClipboardWatchState>()
++                .running
++                .store(false, Ordering::SeqCst);
++            Err(clipboard_watch_error("clipboardWatchStart", error))
++        }
++    }
++}
++
++/// 停止监听。同时清空去重状态，下次开启时重新计算。
++pub fn stop(app: &AppHandle) -> Result<(), AppError> {
++    let already_stopped = {
++        let state = app.state::<ClipboardWatchState>();
++        !state.running.swap(false, Ordering::SeqCst)
++    };
++    if already_stopped {
++        return Ok(());
++    }
++
++    app.state::<ClipboardWatchState>().clear();
++
++    match run_async(clipboard_x::stop_listening()) {
++        Ok(()) => Ok(()),
++        Err(error) => Err(clipboard_watch_error("clipboardWatchStop", error)),
++    }
++}
++
++/// 把监听启停对齐到配置的当前值。供 `config_save` 的运行时变更流程调用，
++/// 这样用户在设置里勾选后无需重启即可生效。
++pub fn apply_config(app: &AppHandle, enabled: bool) -> Result<(), AppError> {
++    let currently_running = {
++        let state = app.state::<ClipboardWatchState>();
++        state.is_running()
++    };
++
++    match (enabled, currently_running) {
++        (true, false) => start(app),
++        (false, true) => stop(app),
++        _ => Ok(()),
++    }
++}
++
++fn config_enabled() -> bool {
++    default_store()
++        .and_then(|store| store.load_config())
++        .map(|config| config.clipboard_watch_enabled)
++        .unwrap_or(false)
++}
++
++/// 处理一次剪贴板变更：读取 → 过滤 → 归档。
++fn archive_current_clipboard(app: &AppHandle) -> Result<(), AppError> {
++    let state = app.state::<ClipboardWatchState>();
++    if !state.is_running() {
++        return Ok(());
++    }
++
++    let store = default_store()?;
++    let config = store.load_config()?;
++    if !config.clipboard_watch_enabled {
++        return Ok(());
++    }
++
++    // 剪贴板里可能是图片、文件等非文本内容，此时读取会失败或返回空串，
++    // 静默跳过即可——这不是错误情况。
++    let text = match read_current_text()? {
++        ReadOutcome::Text(text) => text,
++        ReadOutcome::Skipped => return Ok(()),
++    };
++
++    // 去重：同一次复制可能触发多次变更事件。
++    if state.is_duplicate(&text) {
++        return Ok(());
++    }
++
++    let truncated = truncate_chars(&text, config.clipboard_watch_max_chars);
++    append_entry(&store, &config, &truncated)?;
++
++    // 写库成功后再更新去重状态，保证失败时下次事件仍会重试。
++    state.remember(text);
++
++    // 复用花笺既有事件，主窗口 / 小窗 / 磁贴会像其他笔记改动一样自动刷新。
++    let _ = app.emit("notes-changed", ());
++
++    Ok(())
++}
++
++/// 读取当前剪贴板文本；非文本或空内容返回 `Skipped`。
++fn read_current_text() -> Result<ReadOutcome, AppError> {
++    match run_async(clipboard_x::read_text()) {
++        Ok(raw) => {
++            let trimmed = raw.trim();
++            if trimmed.is_empty() {
++                Ok(ReadOutcome::Skipped)
++            } else {
++                Ok(ReadOutcome::Text(trimmed.to_string()))
++            }
++        }
++        // 剪贴板内容不是文本（图片 / 文件）时读取会报错，属于正常情况。
++        Err(_) => Ok(ReadOutcome::Skipped),
++    }
++}
++
++/// 找到当天的归档笔记并追加一条记录。
++///
++/// 归档按日期分片（`剪贴板归档-2026-09-14`），避免单文件无限增长后每次写入都
++/// 全量重写——`NoteStore::update_note` 走的是「读全量 → 拼接 → 写全量」路径。
++fn append_entry(store: &NoteStore, config: &AppConfig, text: &str) -> Result<(), AppError> {
++    let title = archive_title();
++    let timestamp = Local::now().format("%H:%M:%S");
++    let entry = format!("## {timestamp}\n\n{text}\n");
++    let category = config.clipboard_watch_category.clone();
++
++    match find_archive_note(store, &title, &category)? {
++        Some(metadata) => {
++            let existing = store.read_note(&metadata.id)?;
++            let merged = if existing.content.trim().is_empty() {
++                format!("# {title}\n\n{entry}")
++            } else {
++                format!("{}\n{entry}", existing.content.trim_end())
++            };
++
++            // 先把要用的字段解构出来，避免在调用中同时借用 metadata.id
++            // 又移动 metadata.title / metadata.category。
++            let (id, note_title, note_category) =
++                (metadata.id, metadata.title, metadata.category);
++
++            store.update_note(
++                &id,
++                SaveNoteRequest {
++                    title: note_title,
++                    content: merged,
++                    category: note_category,
++                },
++            )?;
++        }
++        None => {
++            store.create_note(SaveNoteRequest {
++                title: title.clone(),
++                content: format!("# {title}\n\n{entry}"),
++                category,
++            })?;
++        }
++    }
++
++    Ok(())
++}
++
++/// 查找当天归档笔记。归档笔记可能已被用户删除，因此每次都回查列表，
++/// 找不到就重新创建（不缓存 id，避免删除后写入失败）。
++fn find_archive_note(
++    store: &NoteStore,
++    title: &str,
++    category: &str,
++) -> Result<Option<NoteMetadata>, AppError> {
++    Ok(store
++        .list_notes()?
++        .into_iter()
++        .find(|note| note.title == title && note.category == category))
++}
++
++fn archive_title() -> String {
++    format!("{ARCHIVE_TITLE_PREFIX}-{}", Local::now().format("%Y-%m-%d"))
++}
++
++/// 同步等待一个 clipboard-x 的 async 命令完成。
++///
++/// clipboard-x 的命令都是 `async fn`，而本模块的调用点（启动流程、配置热更新、
++/// 事件回调线程）都是同步上下文，需要拿到结果才能决定后续动作。
++///
++/// 这里刻意**不用** `tauri::async_runtime::block_on`：该方法在异步执行上下文内
++/// 调用会 panic，而调用链上游（`config_save` 同步命令）究竟运行在主线程还是
++/// 异步上下文，属于 Tauri 内部实现细节、不宜依赖。改为把 future 交给异步运行时
++/// 执行、再用 channel 同步取回结果——无论调用者身处哪种上下文都成立，
++/// 与项目在 updater 里使用 `async_runtime` 的既有风格也一致。
++fn run_async<F, T>(future: F) -> Result<T, String>
++where
++    F: std::future::Future<Output = Result<T, String>> + Send + 'static,
++    T: Send + 'static,
++{
++    let (sender, receiver) = std::sync::mpsc::channel();
++    tauri::async_runtime::spawn(async move {
++        let _ = sender.send(future.await);
++    });
++
++    receiver.recv().map_err(|error| error.to_string())?
++}
++
++fn clipboard_watch_error(code: &str, message: String) -> AppError {
++    AppError {
++        code: code.to_string(),
++        message,
++        details: Default::default(),
++    }
++}
++
++/// 按字符数截断（不是字节数），避免切断多字节字符。
++fn truncate_chars(value: &str, max_chars: usize) -> String {
++    if max_chars == 0 {
++        return String::new();
++    }
++
++    let mut chars = value.chars();
++    let truncated: String = chars.by_ref().take(max_chars).collect();
++
++    if chars.next().is_some() {
++        format!("{truncated}\n\n…（内容超长，已截断）")
++    } else {
++        truncated
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn truncate_keeps_short_text_intact() {
++        assert_eq!(truncate_chars("hello", 10), "hello");
++        assert_eq!(truncate_chars("hello", 5), "hello");
++    }
++
++    #[test]
++    fn truncate_marks_overlong_text() {
++        let result = truncate_chars("abcdef", 3);
++        assert!(result.starts_with("abc"));
++        assert!(result.contains("已截断"));
++    }
++
++    #[test]
++    fn truncate_handles_multibyte_without_panicking() {
++        let result = truncate_chars("中文内容测试", 2);
++        assert!(result.starts_with("中文"));
++        assert!(result.contains("已截断"));
++    }
++
++    #[test]
++    fn truncate_with_zero_limit_returns_empty() {
++        assert_eq!(truncate_chars("anything", 0), "");
++    }
++
++    #[test]
++    fn archive_title_includes_prefix_and_date() {
++        let title = archive_title();
++        assert!(title.starts_with(ARCHIVE_TITLE_PREFIX));
++        // 形如 剪贴板归档-2026-09-14，共三个连字符
++        assert_eq!(title.matches('-').count(), 3);
++    }
++
++    #[test]
++    fn duplicate_detection_tracks_last_value() {
++        let state = ClipboardWatchState::default();
++        assert!(!state.is_duplicate("a"));
++
++        state.remember("a".to_string());
++        assert!(state.is_duplicate("a"));
++        assert!(!state.is_duplicate("b"));
++
++        state.clear();
++        assert!(!state.is_duplicate("a"));
++    }
++
++    #[test]
++    fn running_flag_starts_stopped() {
++        let state = ClipboardWatchState::default();
++        assert!(!state.is_running());
++    }
++}
+diff --git a/src-tauri/src/desktop.rs b/src-tauri/src/desktop.rs
+index ebb6903..cc051e5 100644
+--- a/src-tauri/src/desktop.rs
++++ b/src-tauri/src/desktop.rs
+@@ -1083,6 +1083,10 @@ pub fn apply_runtime_config(
+         apply_autostart(app, next.autostart)?;
+     }
+ 
++    // 剪贴板监听的启停对齐到配置当前值。这里不做「变化才处理」的判断，
++    // 而是直接按目标状态收敛，避免用户快速反复切换开关时状态错位。
++    crate::clipboard_watch::apply_config(app, next.clipboard_watch_enabled)?;
++
+     Ok(())
+ }
+ 
+@@ -2581,6 +2585,9 @@ mod tests {
+             surface_font_size: 14,
+             tab_indent_size: 2,
+             external_file_auto_save: true,
++            clipboard_watch_enabled: false,
++            clipboard_watch_category: String::new(),
++            clipboard_watch_max_chars: 20_000,
+             background_image_path: String::new(),
+             background_fit: "cover".into(),
+             background_dim: 0.25,
+@@ -2666,6 +2673,9 @@ mod tests {
+             surface_font_size: 14,
+             tab_indent_size: 2,
+             external_file_auto_save: true,
++            clipboard_watch_enabled: false,
++            clipboard_watch_category: String::new(),
++            clipboard_watch_max_chars: 20_000,
+             background_image_path: String::new(),
+             background_fit: "cover".into(),
+             background_dim: 0.25,
+@@ -2703,6 +2713,9 @@ mod tests {
+             surface_font_size: 16,
+             tab_indent_size: 4,
+             external_file_auto_save: true,
++            clipboard_watch_enabled: false,
++            clipboard_watch_category: String::new(),
++            clipboard_watch_max_chars: 20_000,
+             background_image_path: String::new(),
+             background_fit: "cover".into(),
+             background_dim: 0.25,
+diff --git a/src-tauri/src/lib.rs b/src-tauri/src/lib.rs
+index cbfaab2..c381d79 100644
+--- a/src-tauri/src/lib.rs
++++ b/src-tauri/src/lib.rs
+@@ -1,3 +1,4 @@
++pub mod clipboard_watch;
+ pub mod desktop;
+ pub mod json_io;
+ pub mod locales;
+@@ -365,6 +366,11 @@ async fn open_note_in_editor(app: AppHandle, note_id: String) -> Result<(), AppE
+     Ok(())
+ }
+ 
++#[tauri::command]
++fn clipboard_watch_status() -> Result<bool, AppError> {
++    Ok(default_store()?.load_config()?.clipboard_watch_enabled)
++}
++
+ #[tauri::command]
+ fn take_startup_file() -> Option<String> {
+     desktop::take_startup_file()
+@@ -439,6 +445,7 @@ pub fn run() {
+         .plugin(tauri_plugin_cli::init())
+         .plugin(tauri_plugin_dialog::init())
+         .plugin(tauri_plugin_clipboard_manager::init())
++        .plugin(tauri_plugin_clipboard_x::init())
+         .plugin(tauri_plugin_opener::init())
+         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+             if let Some(file_path) = desktop::extract_file_arg(&args) {
+@@ -464,6 +471,7 @@ pub fn run() {
+                 updater::start_auto_check_scheduler(app.handle().clone());
+             }
+             desktop::setup_desktop(app)?;
++            clipboard_watch::setup_clipboard_watch(app.handle().clone());
+             Ok(())
+         })
+         .on_window_event(desktop::handle_window_event)
+@@ -512,6 +520,7 @@ pub fn run() {
+             updater::commands::update_install,
+             updater::commands::update_install_prepare_report,
+             updater::commands::update_cancel,
++            clipboard_watch_status,
+             take_startup_file
+         ])
+         .build(tauri::generate_context!())
+diff --git a/src-tauri/src/services/notes.rs b/src-tauri/src/services/notes.rs
+index 5404988..8ee3359 100644
+--- a/src-tauri/src/services/notes.rs
++++ b/src-tauri/src/services/notes.rs
+@@ -52,6 +52,16 @@ pub struct AppConfig {
+     pub tab_indent_size: u32,
+     #[serde(default = "default_external_file_auto_save")]
+     pub external_file_auto_save: bool,
++    // 剪贴板自动存档。默认必须为 false：开启后应用会记录用户复制的所有文本，
++    // 属于隐私敏感行为，须由用户主动勾选（见 SettingsPanel）。
++    #[serde(default = "default_clipboard_watch_enabled")]
++    pub clipboard_watch_enabled: bool,
++    // 归档笔记所属分类，空串表示不分类。
++    #[serde(default)]
++    pub clipboard_watch_category: String,
++    // 单条内容的最大字符数，超出部分截断，避免误复制大段内容撑爆归档笔记。
++    #[serde(default = "default_clipboard_watch_max_chars")]
++    pub clipboard_watch_max_chars: usize,
+     #[serde(default)]
+     pub background_image_path: String,
+     #[serde(default = "default_background_fit")]
+@@ -1145,6 +1155,9 @@ impl NoteStore {
+             surface_font_size: default_surface_font_size(),
+             tab_indent_size: default_tab_indent_size(),
+             external_file_auto_save: default_external_file_auto_save(),
++            clipboard_watch_enabled: default_clipboard_watch_enabled(),
++            clipboard_watch_category: String::new(),
++            clipboard_watch_max_chars: default_clipboard_watch_max_chars(),
+             background_image_path: String::new(),
+             background_fit: default_background_fit(),
+             background_dim: default_background_dim(),
+@@ -1708,6 +1721,17 @@ fn default_external_file_auto_save() -> bool {
+     true
+ }
+ 
++/// 剪贴板自动存档默认关闭。开启即意味着记录用户复制的全部文本，
++/// 包含密码、验证码、token 等敏感内容，必须由用户显式授权。
++fn default_clipboard_watch_enabled() -> bool {
++    false
++}
++
++/// 单条剪贴板内容默认保留 20000 字符，超出部分截断。
++fn default_clipboard_watch_max_chars() -> usize {
++    20_000
++}
++
+ fn default_background_fit() -> String {
+     "cover".into()
+ }
+@@ -1907,6 +1931,9 @@ mod tests {
+             surface_font_size: 16,
+             tab_indent_size: 2,
+             external_file_auto_save: true,
++            clipboard_watch_enabled: false,
++            clipboard_watch_category: String::new(),
++            clipboard_watch_max_chars: 20_000,
+             background_image_path: String::new(),
+             background_fit: "cover".into(),
+             background_dim: 0.25,
+diff --git a/src/components/SettingsPanel.tsx b/src/components/SettingsPanel.tsx
+index 519f2f2..cee6fa0 100644
+--- a/src/components/SettingsPanel.tsx
++++ b/src/components/SettingsPanel.tsx
+@@ -188,6 +188,18 @@ export function SettingsPanel({ config, onChange, onMigrateDataDir, onClose }: S
+             checked={config.externalFileAutoSave}
+             onChange={(checked) => setConfigValue("externalFileAutoSave", checked)}
+           />
++          <ToggleRow
++            label={t("settings.autoSave.clipboard", { defaultValue: "自动存档剪贴板内容" })}
++            checked={config.clipboardWatchEnabled}
++            onChange={(checked) => setConfigValue("clipboardWatchEnabled", checked)}
++          />
++          {config.clipboardWatchEnabled && (
++            <p className="text-[11px] font-body text-ink-faint leading-relaxed">
++              {t("settings.autoSave.clipboardHint", {
++                defaultValue: "复制的文本会自动追加到「剪贴板归档」笔记，仅保存在本地。",
++              })}
++            </p>
++          )}
+           <ToggleRow
+             label={t("settings.rememberSurfaceSize", { defaultValue: "记住小窗尺寸" })}
+             checked={config.rememberSurfaceSize}
+diff --git a/src/features/settings/api.test.ts b/src/features/settings/api.test.ts
+index a196bdb..31c5b2e 100644
+--- a/src/features/settings/api.test.ts
++++ b/src/features/settings/api.test.ts
+@@ -44,6 +44,9 @@ describe("settings api", () => {
+       surfaceFontSize: 14,
+       tabIndentSize: 2,
+       externalFileAutoSave: true,
++      clipboardWatchEnabled: false,
++      clipboardWatchCategory: "",
++      clipboardWatchMaxChars: 20_000,
+       rememberSurfaceSize: true,
+       tileCtrlClose: true,
+       tileDoubleClickToEdit: false,
+@@ -78,6 +81,9 @@ describe("settings api", () => {
+       surfaceFontSize: 16,
+       tabIndentSize: 4,
+       externalFileAutoSave: true,
++      clipboardWatchEnabled: false,
++      clipboardWatchCategory: "",
++      clipboardWatchMaxChars: 20_000,
+       rememberSurfaceSize: true,
+       tileCtrlClose: true,
+       tileDoubleClickToEdit: true,
+diff --git a/src/features/settings/types.ts b/src/features/settings/types.ts
+index 0acda39..b8f168c 100644
+--- a/src/features/settings/types.ts
++++ b/src/features/settings/types.ts
+@@ -21,6 +21,9 @@ export interface AppConfig {
+   surfaceFontSize: number;
+   tabIndentSize: number;
+   externalFileAutoSave: boolean;
++  clipboardWatchEnabled: boolean;
++  clipboardWatchCategory: string;
++  clipboardWatchMaxChars: number;
+   rememberSurfaceSize: boolean;
+   tileCtrlClose: boolean;
+   tileDoubleClickToEdit: boolean;
+diff --git a/src/locales/en-US/translation.json b/src/locales/en-US/translation.json
+index 6c00dd4..62c8701 100644
+--- a/src/locales/en-US/translation.json
++++ b/src/locales/en-US/translation.json
+@@ -204,6 +204,8 @@
+   "settings": {
+     "autoSave": {
+       "externalFile": "Auto-save external files",
++      "clipboard": "Auto-archive clipboard content",
++      "clipboardHint": "Copied text is appended to a \"Clipboard Archive\" note and stored only on this device.",
+       "note": "Auto-save notes",
+       "surface": "Auto-save surface notes"
+     },
+diff --git a/src/locales/zh-CN/translation.json b/src/locales/zh-CN/translation.json
+index be175b1..42d9e2c 100644
+--- a/src/locales/zh-CN/translation.json
++++ b/src/locales/zh-CN/translation.json
+@@ -204,6 +204,8 @@
+   "settings": {
+     "autoSave": {
+       "externalFile": "外部文件自动保存",
++      "clipboard": "自动存档剪贴板内容",
++      "clipboardHint": "复制的文本会自动追加到「剪贴板归档」笔记，仅保存在本地。",
+       "note": "自动保存笔记",
+       "surface": "小窗笔记自动保存"
+     },
+diff --git a/src/locales/zh-HK/translation.json b/src/locales/zh-HK/translation.json
+index 607fb17..c15c78c 100644
+--- a/src/locales/zh-HK/translation.json
++++ b/src/locales/zh-HK/translation.json
+@@ -204,6 +204,8 @@
+   "settings": {
+     "autoSave": {
+       "externalFile": "外部檔案自動儲存",
++      "clipboard": "自動封存剪貼簿內容",
++      "clipboardHint": "複製的文字會自動附加到「剪貼簿封存」筆記，僅儲存在本機。",
+       "note": "自動儲存筆記",
+       "surface": "小窗筆記自動儲存"
+     },
