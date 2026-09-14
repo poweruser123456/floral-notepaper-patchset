@@ -20,15 +20,15 @@ patches/0001-clipboard-auto-archive.patch   功能补丁(13 文件,+552/-1,含 C
 
 ## 修改代码后重新出补丁
 
-源码开发副本:`G:\Code\GithubCloudeCode\floral-notepaper\`(上游 clone + 我们的提交 `0af69d1`)。
+源码开发副本:上游 clone 加上我们的提交 `0af69d1`(位于维护者本机,路径从略)。下文以 `<开发副本>` 指代开发副本工作目录、`<本仓库>` 指代本仓库的工作副本。
 
 1. 在开发副本正常改代码、commit;
 2. 重新导出补丁(**排除** verify.yml,**包含** Cargo.lock):
 
 ```bash
-cd /g/Code/GithubCloudeCode/floral-notepaper
+cd <开发副本>
 git diff 69a43ae HEAD -- . ':(exclude).github/workflows/verify.yml' \
-  > /g/Code/GithubCloudeCode/floral-notepaper-patchset/patches/0001-clipboard-auto-archive.patch
+  > <本仓库>/patches/0001-clipboard-auto-archive.patch
 ```
 
 3. commit 并 push 本仓库,云编译自动跑。
