@@ -3,6 +3,9 @@ name: build-patched
 on:
   push:
     branches: [main]
+    # 纯文档改动不触发构建(补丁/配方/源码变更仍会触发)
+    paths-ignore:
+      - "**.md"
   workflow_dispatch: {}
 
 # 新推送自动取消还在跑的旧构建,节省 Actions 额度
